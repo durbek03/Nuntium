@@ -21,14 +21,13 @@ class News {
     @ColumnInfo
     var isSaved: Boolean = false
 
-    constructor()
     constructor(
         title: String,
         author: String,
         content: String,
         image: String,
         source: String,
-        isSaved: Boolean
+        isSaved: Boolean = false
     ) {
         this.title = title
         this.author = author

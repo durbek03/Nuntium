@@ -35,17 +35,16 @@ fun TopicPicker(
                     modifier = Modifier
                         .padding(10.dp, 10.dp)
                         .fillMaxSize()
-                        .height(55.dp)
-                        .clickable {
-                            coroutineScope.launch {
-                                if (pickedTopics.contains(topic)) pickedTopics.remove(topic) else pickedTopics.add(
-                                    topic
-                                )
-                            }
-                        },
+                        .height(55.dp),
                     topic = topic,
                     isPicked = pickedTopics.contains(topic)
-                )
+                ) {
+                    coroutineScope.launch {
+                        if (pickedTopics.contains(topic)) pickedTopics.remove(topic) else pickedTopics.add(
+                            topic
+                        )
+                    }
+                }
             }
         }
     }
@@ -56,6 +55,7 @@ fun TopicItem(
     modifier: Modifier = Modifier,
     topic: String,
     isPicked: Boolean,
+    onClick: () -> Unit
 ) {
     val boxColorAnimation =
         animateColorAsState(targetValue = if (isPicked) MaterialTheme.colors.primary else MaterialTheme.colors.surface)
@@ -65,7 +65,8 @@ fun TopicItem(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(15.dp))
-            .background(color = boxColorAnimation.value),
+            .background(color = boxColorAnimation.value)
+            .clickable { onClick.invoke() },
         contentAlignment = Alignment.Center
     ) {
         Text(text = topic, color = textColorAnimation.value)

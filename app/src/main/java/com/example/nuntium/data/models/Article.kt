@@ -24,5 +24,11 @@ data class Article(
 )
 
 fun Article.toNews(): News {
-    return News()
+    return News(
+        title = this.title,
+        author = this.author ?: "",
+        content = this.content,
+        image = this.urlToImage,
+        source = this.source.name,
+    )
 }
