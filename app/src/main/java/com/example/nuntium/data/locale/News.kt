@@ -11,11 +11,11 @@ class News {
     @ColumnInfo
     var title: String = ""
     @ColumnInfo
-    var author: String = ""
+    var author: String? = ""
     @ColumnInfo
     var content: String = ""
     @ColumnInfo
-    var image: String = ""
+    var image: String? = ""
     @ColumnInfo
     var source: String = ""
     @ColumnInfo

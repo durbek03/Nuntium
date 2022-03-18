@@ -5,19 +5,34 @@ import com.example.nuntium.data.models.toNewsList
 import com.example.nuntium.data.remote.ApiService
 import com.example.nuntium.data.locale.News
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository {
+    val response = mutableListOf<News>()
     private val TAG = "ApiRepImpl"
 
+    init {
+        loadData()
+    }
+
     override suspend fun getNews(page: Int, query: String) : List<News> {
-        val response = apiService.getNews(page = page, query = query).toNewsList()
-        Log.d(TAG, "getNews: query $query")
-        for (i in response) {
-            Log.d(TAG, "getNews: ${i.title}")
-            Log.d(TAG, "getNews: ${i.content}")
-        }
+        //     val response = apiService.getNews(page = page, query = query).toNewsList()
+        delay(2000)
         return response
+    }
+
+    fun loadData() {
+        for (i in 1..20) {
+            response.add(News(
+                "title$i",
+                "some author",
+                "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content. Lorem ipsum may be used as a placeholder before the final copy is",
+                "https://upload.wikimedia.org/wikipedia/en/2/21/Web_of_Spider-Man_Vol_1_129-1.png",
+                "source",
+                false
+            ))
+        }
     }
 }
