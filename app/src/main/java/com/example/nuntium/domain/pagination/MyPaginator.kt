@@ -38,7 +38,7 @@ class MyPaginator(val repository: ApiRepository) {
 
     suspend fun handleTopicChange() {
         topic.collectLatest { currentTopic ->
-            result.value = emptyList()
+            result.emit(emptyList())
             Log.d(TAG, "handleTopicChange: $currentTopic")
             page.emit(1)
         }

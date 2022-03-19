@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.example.nuntium.data.locale.News
+import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
 
 @Composable
@@ -43,22 +44,7 @@ fun RecHeader(modifier: Modifier = Modifier) {
 
 @Composable
 fun RecItemStates(itemState: ListItemState<News>, modifier: Modifier = Modifier) {
-    val colors = listOf<Color>(
-        MaterialTheme.colors.onSurface.copy(alpha = 0.35f),
-        MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
-        MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
-    )
-    val transition = rememberInfiniteTransition()
-    val translate = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutLinearInEasing)
-        )
-    )
-    val brush = Brush.linearGradient(
-        colors, start = Offset.Zero, end = Offset(x = translate.value, y = translate.value)
-    )
+    val brush = customBrush()
     Crossfade(targetState = itemState) {
         when (it) {
             is ListItemState.LoadedItemState -> {
@@ -116,7 +102,7 @@ fun RecItem(modifier: Modifier = Modifier, news: News) {
 }
 
 @Composable
-fun LoadingRecItem( brush : Brush) {
+fun LoadingRecItem(brush : Brush) {
     Row(
         modifier = Modifier.padding(5.dp, 5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -140,12 +126,14 @@ fun LoadingRecItem( brush : Brush) {
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .height(50.dp)
+                    .padding(10.dp, 5.dp)
                     .background(brush),
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .height(50.dp)
+                    .padding(10.dp, 5.dp)
                     .background(brush),
             )
         }

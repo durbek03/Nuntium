@@ -11,6 +11,7 @@ import com.example.nuntium.ui.appLevelStates.ListItemState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +35,7 @@ class RecommendedNewsViewModel @Inject constructor(
 
     private fun handleScrollState() {
         viewModelScope.launch {
-            isScrolledToEnd.collectLatest {
+            isScrolledToEnd.collect {
                 if (it) {
                     page.emit(currentPage + 1)
                 }
@@ -50,9 +51,14 @@ class RecommendedNewsViewModel @Inject constructor(
                 }
                 currentPage = it
                 emitLoading()
-                val news = apiRepository.getNews(it, query = query)
-                Log.d(TAG, "handlePageChange: ${news.toString()}")
-                emitLoaded(news)
+                try {
+                    if (query.isEmpty()) query = "random"
+                    val news = apiRepository.getNews(it, query = query)
+                    Log.d(TAG, "handlePageChange: ${news.toString()}")
+                    emitLoaded(news)
+                } catch (e:Exception) {
+                    emitLoaded(emptyList())
+                }
             }
         }
     }
@@ -62,8 +68,8 @@ class RecommendedNewsViewModel @Inject constructor(
             pickedTopics.collectLatest { list ->
                 query = ""
                 list.forEach { query += it }
-                page.emit(1)
                 recommendNews.value = emptyList()
+                page.emit(1)
             }
         }
     }

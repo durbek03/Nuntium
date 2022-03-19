@@ -35,6 +35,7 @@ import coil.compose.rememberImagePainter
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.R
 import com.example.nuntium.constants.isScrolledToTheEnd
+import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
 
 
@@ -48,6 +49,10 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier) {
     LaunchedEffect(key1 = lazyRowState.firstVisibleItemScrollOffset, key2 = topicNews.value) {
         homeViewModel.scrolledToTheEnd.emit(lazyRowState.isScrolledToTheEnd())
     }
+    LaunchedEffect(key1 = homeViewModel.selectedTabItem.collectAsState().value) {
+        lazyRowState.animateScrollToItem(0)
+    }
+
     LazyRow(
         state = lazyRowState,
         modifier = modifier,
@@ -106,29 +111,14 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier) {
                         }
                     }
                     is ListItemState.LoadingItemState -> {
-                        val colors = listOf<Color>(
-                            MaterialTheme.colors.onSurface.copy(alpha = 0.35f),
-                            MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
-                            MaterialTheme.colors.onSurface.copy(alpha = 0.35f)
-                        )
-                        val transition = rememberInfiniteTransition()
-                        val translate = transition.animateFloat(
-                            initialValue = 0f,
-                            targetValue = 1000f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1000, easing = FastOutLinearInEasing)
-                            )
-                        )
-                        val brush = Brush.linearGradient(
-                            colors, start = Offset.Zero, end = Offset(x = translate.value, y = translate.value)
-                        )
+                        val customBrush = customBrush()
                         Box(
                             modifier = modifier
                                 .padding(5.dp, 0.dp)
                                 .fillMaxHeight()
                                 .aspectRatio(1f)
                                 .clip(RoundedCornerShape(15.dp))
-                                .background(brush = brush)
+                                .background(brush = customBrush)
                         )
                     }
                 }

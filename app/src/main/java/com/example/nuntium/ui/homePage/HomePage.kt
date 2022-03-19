@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +21,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.constants.isScrolledToTheEnd
 import com.example.nuntium.ui.homePage.states.HomePageStates
-import com.google.gson.Gson
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination
@@ -73,24 +71,27 @@ fun HomePage() {
             }
             item {
                 Crossfade(targetState = viewModel.pageState.value) {
-                    when (it) {
-                        is HomePageStates.CasualPage -> {
-                            CasualPage()
-                        }
-                        is HomePageStates.SearchOn -> SearchPage()
+                    if (it is HomePageStates.CasualPage) {
+                        CasualPage()
                     }
                 }
             }
-            if (viewModel.pageState.value == HomePageStates.CasualPage) {
-                item {
-                    RecHeader(
-                        modifier = Modifier
-                            .padding(15.dp, 15.dp, 15.dp, 10.dp)
-                            .fillMaxWidth()
-                    )
+            item {
+                Crossfade(targetState = viewModel.pageState.value) {
+                    if (it is HomePageStates.CasualPage) {
+                        RecHeader(
+                            modifier = Modifier
+                                .padding(15.dp, 15.dp, 15.dp, 10.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
-                itemsIndexed(items = recommendNews.value) { index, item ->
-                    RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
+            }
+            itemsIndexed(items = recommendNews.value) { index, item ->
+                Crossfade(targetState = viewModel.pageState.value) {
+                    if (it is HomePageStates.CasualPage) {
+                        RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
         }
@@ -112,9 +113,4 @@ fun CasualPage(modifier: Modifier = Modifier) {
                 .height(250.dp)
         )
     }
-}
-
-@Composable
-fun SearchPage() {
-    Text(text = "Search")
 }
