@@ -41,11 +41,11 @@ import com.example.nuntium.ui.appLevelStates.ListItemState
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun TopicNewsLazyRow(modifier: Modifier = Modifier) {
+fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
     val homeViewModel: HomeViewModel = hiltViewModel()
     val topicNews = homeViewModel.topicNews.collectAsState()
 
-    val lazyRowState = rememberLazyListState()
+    val lazyRowState = state
     LaunchedEffect(key1 = lazyRowState.firstVisibleItemScrollOffset, key2 = topicNews.value) {
         homeViewModel.scrolledToTheEnd.emit(lazyRowState.isScrolledToTheEnd())
     }

@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,8 @@ fun HomePage() {
             .fillMaxSize()
             .background(color = colors.background)
     ) {
+        val topicListState = rememberLazyListState()
+        val topicNewsListState = rememberLazyListState()
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = columnState
@@ -58,7 +61,7 @@ fun HomePage() {
                     fontSize = 17.sp
                 )
             }
-            stickyHeader {
+            item {
                 SearchBar(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,18 +75,7 @@ fun HomePage() {
             item {
                 Crossfade(targetState = viewModel.pageState.value) {
                     if (it is HomePageStates.CasualPage) {
-                        CasualPage()
-                    }
-                }
-            }
-            item {
-                Crossfade(targetState = viewModel.pageState.value) {
-                    if (it is HomePageStates.CasualPage) {
-                        RecHeader(
-                            modifier = Modifier
-                                .padding(15.dp, 15.dp, 15.dp, 10.dp)
-                                .fillMaxWidth()
-                        )
+                        CasualPage(topicState = topicListState, newsState = topicNewsListState)
                     }
                 }
             }
@@ -99,18 +91,25 @@ fun HomePage() {
 }
 
 @Composable
-fun CasualPage(modifier: Modifier = Modifier) {
+fun CasualPage(modifier: Modifier = Modifier, topicState: LazyListState, newsState: LazyListState) {
     val topicList = Constants.TOPICS
     Column(modifier = modifier) {
         TopicsLazyRow(
             topics = topicList,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            state = topicState
         )
 
         TopicNewsLazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(250.dp),
+            state = newsState
+        )
+        RecHeader(
+            modifier = Modifier
+                .padding(15.dp, 15.dp, 15.dp, 10.dp)
+                .fillMaxWidth()
         )
     }
 }
