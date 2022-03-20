@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,14 +21,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun TopicsLazyRow(modifier: Modifier = Modifier, topics: List<String>) {
+fun TopicsLazyRow(modifier: Modifier = Modifier, topics: List<String>, state: LazyListState) {
     val viewModel: HomeViewModel = hiltViewModel()
     val selectedTabItem = viewModel.selectedTabItem.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-    val lazyRowState = rememberLazyListState()
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        state = lazyRowState,
+        state = state,
         contentPadding = PaddingValues(5.dp, 0.dp, 5.dp, 5.dp)
     ) {
         itemsIndexed(items = topics) { index, topic ->
