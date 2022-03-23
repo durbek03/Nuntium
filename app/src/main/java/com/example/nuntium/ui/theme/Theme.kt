@@ -41,7 +41,6 @@ fun NuntiumTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
     } else {
         LightColorPalette
     }
-
     MaterialTheme(
         colors = colors,
         typography = Typography,

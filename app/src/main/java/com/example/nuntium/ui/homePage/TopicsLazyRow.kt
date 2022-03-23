@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -18,11 +17,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nuntium.ui.homePage.viewModels.TopicNewsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun TopicsLazyRow(modifier: Modifier = Modifier, topics: List<String>, state: LazyListState) {
-    val viewModel: HomeViewModel = hiltViewModel()
+    val viewModel: TopicNewsViewModel = hiltViewModel()
     val selectedTabItem = viewModel.selectedTabItem.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     LazyRow(

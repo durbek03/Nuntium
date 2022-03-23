@@ -1,18 +1,17 @@
-package com.example.nuntium.ui.homePage
+package com.example.nuntium.ui.homePage.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.data.locale.News
-import com.example.nuntium.data.remote.ApiService
 import com.example.nuntium.domain.remote.ApiRepository
 import com.example.nuntium.ui.appLevelStates.ListItemState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -25,27 +24,35 @@ class SearchViewModel @Inject constructor(
     val loadingDummyItems = Constants.loadingDummy
     val page = MutableSharedFlow<Int>()
     var currentPage = 1
-    val isScrolledToEnd = MutableSharedFlow<Boolean>()
     val response = MutableStateFlow<List<ListItemState<News>>>(emptyList())
+    var loading = false
+    val scrollIndex = MutableSharedFlow<Int>()
 
     init {
         handlePageChange()
-        handleScrollState()
         handleQueryChange()
+        handleScrollIndex()
+    }
+
+    private fun handleScrollIndex() {
+        viewModelScope.launch {
+            scrollIndex.collect {
+                if (it + 1 >= currentPage * 20) {
+                    if (!loading) {
+                        page.emit(currentPage + 1)
+                    }
+                }
+            }
+        }
     }
 
     private fun handleQueryChange() {
         viewModelScope.launch {
-            currentPage = 1
-            response.value = emptyList()
-            page.emit(1)
-        }
-    }
-
-    private fun handleScrollState() {
-        viewModelScope.launch {
-            isScrolledToEnd.collectLatest {
-                page.emit(currentPage + 1)
+            query.collectLatest {
+                loading = false
+                currentPage = 1
+                response.value = emptyList()
+                page.emit(1)
             }
         }
     }
@@ -53,15 +60,15 @@ class SearchViewModel @Inject constructor(
     private fun handlePageChange() {
         viewModelScope.launch(Dispatchers.IO) {
             page.collectLatest {
-                if (response.value.contains(ListItemState.LoadingItemState()) || query.value.isEmpty()) {
-                    return@collectLatest
-                }
-                emitLoading()
                 currentPage = it
+                emitLoading()
+                loading = true
                 try {
                     val news = apiRepository.getNews(currentPage, query = query.value)
                     emitLoaded(news)
+                    loading = false
                 } catch (e: Exception) {
+                    loading = false
                     emitLoaded(emptyList())
                 }
             }

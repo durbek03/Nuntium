@@ -1,5 +1,7 @@
 package com.example.nuntium.ui.appLevelComp
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -15,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -22,7 +26,8 @@ import kotlinx.coroutines.launch
 fun TopicPicker(
     modifier: Modifier = Modifier,
     topicList: List<String>,
-    pickedTopics: SnapshotStateList<String>
+    pickedTopics: SnapshotStateList<String>,
+    onTopicPicked: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     Box(modifier = modifier) {
@@ -40,9 +45,13 @@ fun TopicPicker(
                     isPicked = pickedTopics.contains(topic)
                 ) {
                     coroutineScope.launch {
-                        if (pickedTopics.contains(topic)) pickedTopics.remove(topic) else pickedTopics.add(
-                            topic
-                        )
+                        if (pickedTopics.contains(topic)) pickedTopics.remove(topic) else pickedTopics.add(topic)
+                        Log.d("TopicPicked", "TopicPicker: newTopic")
+                        var str = ""
+                        for (i in pickedTopics) {
+                            str += "$i "
+                        }
+                        onTopicPicked.invoke(str)
                     }
                 }
             }

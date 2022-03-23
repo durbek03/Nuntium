@@ -1,6 +1,7 @@
-package com.example.nuntium.ui.homePage
+package com.example.nuntium.ui.homePage.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,25 +20,29 @@ class RecommendedNewsViewModel @Inject constructor(
     val apiRepository: ApiRepository
 ) : ViewModel() {
     private val TAG = "RecommendedNewsViewMode"
-    private var currentPage = 1
-    private val page = MutableSharedFlow<Int>()
-    private var query = ""
     private val loadingNews = Constants.loadingDummy
-    var pickedTopics = MutableStateFlow<SnapshotStateList<String>>(SnapshotStateList())
+    private val page = MutableSharedFlow<Int>()
+    private var currentPage = 1
+    val query = MutableStateFlow<String>("")
+    var pickedTopics = mutableStateListOf<String>()
     val recommendNews = MutableStateFlow<List<ListItemState<News>>>(emptyList())
-    val isScrolledToEnd = MutableSharedFlow<Boolean>()
+    val scrollIndex = MutableSharedFlow<Int>()
+    var loading = false
 
     init {
+        Log.d(TAG, "init: init")
         handlePageChange()
         handleTopicChange()
-        handleScrollState()
+        handleScrollIndex()
     }
 
-    private fun handleScrollState() {
+    private fun handleScrollIndex() {
         viewModelScope.launch {
-            isScrolledToEnd.collect {
-                if (it) {
-                    page.emit(currentPage + 1)
+            scrollIndex.collect {
+                if (it + 1 == currentPage * 20 + 3) {
+                    if (!loading) {
+                        page.emit(currentPage + 1)
+                    }
                 }
             }
         }
@@ -46,18 +51,18 @@ class RecommendedNewsViewModel @Inject constructor(
     private fun handlePageChange() {
         viewModelScope.launch {
             page.collectLatest {
-                if (recommendNews.value.contains(ListItemState.LoadingItemState())) {
-                    return@collectLatest
-                }
+                Log.d(TAG, "handlePageChange: $it ")
                 currentPage = it
+                loading = true
                 emitLoading()
                 try {
-                    if (query.isEmpty()) query = "random"
-                    val news = apiRepository.getNews(it, query = query)
-                    Log.d(TAG, "handlePageChange: ${news.toString()}")
+                    if (query.value.isBlank()) query.value = "random"
+                    val news = apiRepository.getNews(it, query = query.value)
                     emitLoaded(news)
-                } catch (e:Exception) {
-                    emitLoaded(emptyList())
+                    loading = false
+                } catch (e: Exception) {
+                    Log.d(TAG, "handlePageChange: exception")
+                    loading = false
                 }
             }
         }
@@ -65,9 +70,9 @@ class RecommendedNewsViewModel @Inject constructor(
 
     private fun handleTopicChange() {
         viewModelScope.launch {
-            pickedTopics.collectLatest { list ->
-                query = ""
-                list.forEach { query += it }
+            query.collectLatest {
+                Log.d(TAG, "handleTopicChange: $it")
+                loading = false
                 recommendNews.value = emptyList()
                 page.emit(1)
             }

@@ -19,22 +19,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.example.nuntium.ui.homePage.RecommendedNewsViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.ui.appLevelComp.TopicPicker
 import com.example.nuntium.ui.destinations.HomePageDestination
 import com.example.nuntium.ui.destinations.PickTopicPageDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
 @Destination
 @Composable
 fun PickTopicPage(navigator: DestinationsNavigator) {
-    val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel(LocalViewModelStoreOwner.current!!)
+    val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
     val colors = MaterialTheme.colors
     val topicList = Constants.TOPICS
-    val pickedTopics = recommendedNewsViewModel.pickedTopics.collectAsState()
+    val pickedTopics = recommendedNewsViewModel.pickedTopics
     val scrollableState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -65,8 +68,12 @@ fun PickTopicPage(navigator: DestinationsNavigator) {
             modifier = Modifier
                 .fillMaxWidth(),
             topicList = topicList,
-            pickedTopics = pickedTopics.value
-        )
+            pickedTopics = pickedTopics
+        ) {
+            coroutineScope.launch {
+                recommendedNewsViewModel.query.emit(it)
+            }
+        }
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,7 +81,7 @@ fun PickTopicPage(navigator: DestinationsNavigator) {
                 .clip(RoundedCornerShape(15.dp))
                 .background(color = colors.primary),
             onClick = {
-                navigator.navigate(HomePageDestination) {
+                navigator.navigate(direction = HomePageDestination()) {
                     this.popUpTo(PickTopicPageDestination.route) {
                         inclusive = true
                     }

@@ -8,3 +8,4 @@ val Blue700 = Color(0xFF1C2353)
 
 val Gray700 = Color(0xFF333647)
 val Gray300 = Color(0xFF7C82A1)
+val SemiTransparent = Color(0xA6000000)

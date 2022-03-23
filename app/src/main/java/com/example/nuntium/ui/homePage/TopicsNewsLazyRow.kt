@@ -1,16 +1,15 @@
 package com.example.nuntium.ui.homePage
 
+import android.util.Log
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Colors
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -20,10 +19,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,22 +35,22 @@ import com.example.nuntium.R
 import com.example.nuntium.constants.isScrolledToTheEnd
 import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
+import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
+import com.example.nuntium.ui.homePage.viewModels.TopicNewsViewModel
 
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
-    val homeViewModel: HomeViewModel = hiltViewModel()
-    val topicNews = homeViewModel.topicNews.collectAsState()
-
+    val topicNewsViewModel: TopicNewsViewModel = hiltViewModel()
+    val topicNews = topicNewsViewModel.topicNews.collectAsState()
+    val selectedTabItem = topicNewsViewModel.selectedTabItem.collectAsState()
     val lazyRowState = state
-    LaunchedEffect(key1 = lazyRowState.firstVisibleItemScrollOffset, key2 = topicNews.value) {
-        homeViewModel.scrolledToTheEnd.emit(lazyRowState.isScrolledToTheEnd())
+    val lastIndex = lazyRowState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+    LaunchedEffect(key1 = lastIndex, topicNews.value) {
+        lastIndex ?: return@LaunchedEffect
+        topicNewsViewModel.lastVisibleIndex.emit(lastIndex)
     }
-    LaunchedEffect(key1 = homeViewModel.selectedTabItem.collectAsState().value) {
-        lazyRowState.animateScrollToItem(0)
-    }
-
     LazyRow(
         state = lazyRowState,
         modifier = modifier,
@@ -86,7 +84,7 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .fillMaxHeight(0.3f)
-                                        .background(Color(0xA6000000))
+                                        .background(color = colorResource(id = R.color.semiTransparent))
                                         .padding(15.dp, 0.dp),
                                     text = state.item.title,
                                     fontSize = 17.sp,
@@ -105,7 +103,13 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_save),
                                     contentDescription = "Save",
-                                    tint = Color.White
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                        .height(30.dp)
+                                        .clip(RoundedCornerShape(50.dp))
+                                        .background(color = colorResource(id = R.color.semiTransparent))
+                                        .padding(5.dp)
                                 )
                             }
                         }
