@@ -28,6 +28,9 @@ import com.example.nuntium.R
 import com.ramcosta.composedestinations.annotation.Destination
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.constants.isScrolledToTheEnd
+import com.example.nuntium.ui.appLevelStates.WindowInfo
+import com.example.nuntium.ui.appLevelStates.rememberWindowInfo
+import com.example.nuntium.ui.homePage.intent.HomePageIntent
 import com.example.nuntium.ui.homePage.states.HomePageStates
 import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
 import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
@@ -42,7 +45,8 @@ fun HomePage() {
     val colors = MaterialTheme.colors
     //homeviewmodel
     val homeViewModel: HomeViewModel = hiltViewModel()
-    val pageState = homeViewModel.homePageState.collectAsState()
+    val homePageState = homeViewModel.homePageState.collectAsState()
+    val casualVerticalScrollState = rememberLazyListState()
     //recommendViewModel
     val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
     val recommendNews = recommendedNewsViewModel.recommendNews.collectAsState()
@@ -62,7 +66,6 @@ fun HomePage() {
     }
     LaunchedEffect(key1 = verticalLastIndex, key2 = recommendNews.value) {
         verticalLastIndex ?: return@LaunchedEffect
-        Log.d("HomePagTag", "HomePage: ${columnState.firstVisibleItemIndex}")
         recommendedNewsViewModel.scrollIndex.emit(verticalLastIndex)
     }
     Box(
@@ -70,102 +73,19 @@ fun HomePage() {
             .fillMaxSize()
             .background(color = colors.background)
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = columnState
-        ) {
-            item {
-                Text(
-                    modifier = Modifier.padding(15.dp, 15.dp, 15.dp, 0.dp),
-                    text = "Browse",
-                    color = colors.onBackground,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier.padding(15.dp, 0.dp),
-                    text = "Discover things of this world",
-                    color = colors.onSurface,
-                    fontSize = 17.sp
-                )
-            }
-            item {
-                SearchBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colors.background)
-                        .padding(15.dp, 10.dp)
-                        .height(55.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(color = MaterialTheme.colors.surface)
-                )
-            }
-            item {
-                Crossfade(targetState = pageState.value) {
-                    if (it is HomePageStates.CasualPage) {
-                        CasualPage(topicState = topicListState, newsState = topicNewsListState)
-                    }
+        Crossfade(targetState = homePageState.value) {
+            when (it) {
+                HomePageStates.CasualPage -> {
+                    CasualPage(
+                        verticalScrollState = casualVerticalScrollState,
+                        topicListState = topicListState,
+                        topicNewsListState = topicNewsListState
+                    )
                 }
-            }
-            itemsIndexed(items = recommendNews.value) { index, item ->
-                Crossfade(targetState = pageState.value) {
-                    if (it is HomePageStates.CasualPage) {
-                        RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
-                    }
+                HomePageStates.SearchOn -> {
+                    SearchPage(modifier = Modifier, columnState = rememberLazyListState())
                 }
             }
         }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(15.dp),
-            contentAlignment = Alignment.BottomEnd
-        ) {
-            AnimatedVisibility(
-                visible = columnState.firstVisibleItemIndex >= 3,
-                enter = fadeIn(), exit = fadeOut()
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_up),
-                    contentDescription = "up",
-                    modifier = Modifier
-                        .height(50.dp)
-                        .width(50.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(colors.surface)
-                        .clickable {
-                            coroutineScope.launch {
-                                columnState.animateScrollToItem(0)
-                            }
-                        }
-                        .padding(10.dp),
-                    tint = colors.onSurface
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun CasualPage(modifier: Modifier = Modifier, topicState: LazyListState, newsState: LazyListState) {
-    val topicList = Constants.TOPICS
-    Column(modifier = modifier) {
-        TopicsLazyRow(
-            topics = topicList,
-            modifier = Modifier.fillMaxWidth(),
-            state = topicState
-        )
-
-        TopicNewsLazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
-            state = newsState
-        )
-        RecHeader(
-            modifier = Modifier
-                .padding(15.dp, 15.dp, 15.dp, 10.dp)
-                .fillMaxWidth()
-        )
     }
 }

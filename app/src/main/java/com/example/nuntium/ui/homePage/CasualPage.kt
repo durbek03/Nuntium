@@ -1,0 +1,93 @@
+package com.example.nuntium.ui.homePage
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nuntium.constants.Constants
+import com.example.nuntium.ui.homePage.intent.HomePageIntent
+import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
+import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
+import kotlinx.coroutines.launch
+
+@Composable
+fun CasualPage(
+    modifier: Modifier = Modifier,
+    verticalScrollState: LazyListState,
+    topicListState: LazyListState,
+    topicNewsListState: LazyListState
+) {
+    //viewModels
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
+    val recommendNews = recommendedNewsViewModel.recommendNews.collectAsState()
+    //remembers
+    val coroutineScope = rememberCoroutineScope()
+    //uiRelated
+    val topicList = Constants.TOPICS
+    val colors = MaterialTheme.colors
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        state = verticalScrollState
+    ) {
+        item {
+            HeaderText()
+        }
+        item {
+            SearchBar(
+                "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = colors.background)
+                    .padding(15.dp, 10.dp)
+                    .height(55.dp)
+                    .clip(RoundedCornerShape(15.dp))
+                    .background(color = MaterialTheme.colors.surface),
+                onFocusChanged = {
+                    if (it) {
+                        coroutineScope.launch {
+                            homeViewModel.action.emit(HomePageIntent.OpenSearchPage)
+                        }
+                    }
+                },
+                leftIconClicked = {},
+                onTextChange = {},
+                focusOnLaunch = false
+            )
+        }
+        item {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TopicsLazyRow(
+                    topics = topicList,
+                    modifier = Modifier.fillMaxWidth(),
+                    state = topicListState
+                )
+
+                TopicNewsLazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                    state = topicNewsListState
+                )
+                RecHeader(
+                    modifier = Modifier
+                        .padding(15.dp, 15.dp, 15.dp, 10.dp)
+                        .fillMaxWidth()
+                )
+            }
+        }
+        itemsIndexed(items = recommendNews.value) { index, item ->
+            RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
