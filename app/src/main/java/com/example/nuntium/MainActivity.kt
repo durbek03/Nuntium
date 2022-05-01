@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
     lateinit var handler: Handler
     private val TAG = "MainActivity"
     lateinit var homeViewModel: HomeViewModel
-    var leavable = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
@@ -77,9 +77,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onBackPressed() {
-
     }
 }

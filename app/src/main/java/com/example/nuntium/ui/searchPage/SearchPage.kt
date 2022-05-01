@@ -31,11 +31,13 @@ import com.example.nuntium.ui.appLevelComp.ScrollController
 import com.example.nuntium.ui.homePage.HeaderText
 import com.example.nuntium.ui.homePage.SearchBar
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
 @Composable
 @Destination
 fun SearchPage(
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     columnState: LazyListState = rememberLazyListState(),
     rowState: LazyListState = rememberLazyListState()
@@ -75,6 +77,7 @@ fun SearchPage(
                     .background(color = MaterialTheme.colors.surface),
                 onFocusChanged = {},
                 leftIconClicked = {
+                    navigator.popBackStack()
                 },
                 onTextChange = { searchText ->
                     coroutineScope.launch {

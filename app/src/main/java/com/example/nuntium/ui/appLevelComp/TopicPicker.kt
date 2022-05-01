@@ -39,7 +39,7 @@ fun TopicPicker(
                 TopicItem(
                     modifier = Modifier
                         .padding(10.dp, 10.dp)
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .height(55.dp),
                     topic = topic,
                     isPicked = pickedTopics.contains(topic)

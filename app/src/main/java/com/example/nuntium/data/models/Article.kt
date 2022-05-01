@@ -20,7 +20,7 @@ data class Article(
     @SerializedName("url")
     val url: String,
     @SerializedName("urlToImage")
-    val urlToImage: String
+    val urlToImage: String?
 )
 
 fun Article.toNews(): News {
@@ -28,7 +28,7 @@ fun Article.toNews(): News {
         title = this.title,
         author = this.author ?: "",
         content = this.content,
-        image = this.urlToImage,
+        image = this.urlToImage ?: "",
         source = this.source.name,
     )
 }

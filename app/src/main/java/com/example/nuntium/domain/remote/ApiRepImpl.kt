@@ -17,7 +17,6 @@ class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository
     }
 
     override suspend fun getNews(page: Int, query: String): List<News> {
-        Log.d(TAG, "getNews: request")
         delay(2500)
         return try {
             return response
@@ -27,6 +26,7 @@ class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository
 //        return try {
 //            apiService.getNews(query = query, page = page).toNewsList()
 //        } catch (e: Exception) {
+//            Log.d(TAG, "getNews: ${e.message}")
 //            emptyList()
 //        }
     }

@@ -1,5 +1,6 @@
 package com.example.nuntium.ui.homePage
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -31,11 +32,16 @@ fun SearchBar(
     focusOnLaunch: Boolean,
     icon: Int = R.drawable.ic_search
 ) {
+    val textFocusState = remember {
+        mutableStateOf(false)
+    }
     val textFieldValue = remember {
         mutableStateOf(value)
     }
     val homeViewModel: HomeViewModel = hiltViewModel()
-    val homePageState = homeViewModel.homePageState.collectAsState()
+    LaunchedEffect(key1 = textFocusState.value) {
+        onFocusChanged.invoke(textFocusState.value)
+    }
     val focusRequester = remember {
         FocusRequester
     }
@@ -66,7 +72,7 @@ fun SearchBar(
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .onFocusEvent {
-                    onFocusChanged.invoke(it.isFocused)
+                    textFocusState.value = it.isFocused
                 }
                 .focusRequester(focusRequester.Default),
             singleLine = true,

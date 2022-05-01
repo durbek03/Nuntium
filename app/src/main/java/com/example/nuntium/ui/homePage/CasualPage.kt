@@ -1,5 +1,6 @@
 package com.example.nuntium.ui.homePage
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -40,10 +41,6 @@ fun CasualPage(
     val topicList = Constants.TOPICS
     val colors = MaterialTheme.colors
 
-    LaunchedEffect(key1 = true) {
-        homeViewModel.backPressEnabled.emit(true)
-    }
-
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         state = verticalScrollState,
@@ -64,6 +61,10 @@ fun CasualPage(
                     .background(color = MaterialTheme.colors.surface),
                 onFocusChanged = {
                     if (it) {
+                        Log.d("Focus change", "CasualPage: navigating")
+                        coroutineScope.launch {
+                            homeViewModel.action.emit(HomePageIntent.OpenSearchPage)
+                        }
                         navigator.navigate(SearchPageDestination)
                     }
                 },

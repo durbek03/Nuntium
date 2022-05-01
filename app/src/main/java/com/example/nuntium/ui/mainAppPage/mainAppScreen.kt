@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nuntium.MainViewModel
 import com.example.nuntium.ui.homePage.HomePage
+import com.example.nuntium.ui.selectTopicPage.PickTopicScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -24,11 +25,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun MainAppScreen(navigator: DestinationsNavigator) {
     val mainViewModel: MainViewModel = hiltViewModel()
+    val screen = mainViewModel.mainAppScreenState.collectAsState()
     val colors = MaterialTheme.colors
     Box(modifier = Modifier.fillMaxSize()) {
-        Crossfade(targetState = mainViewModel.mainAppScreenState) {
-            val screen = it.collectAsState().value
-            when (screen) {
+        Crossfade(targetState = screen) {
+            when (it.value) {
                 MainAppScreenStates.HomePage -> {
                     HomePage(
                         navigator = navigator, modifier = Modifier
@@ -37,7 +38,9 @@ fun MainAppScreen(navigator: DestinationsNavigator) {
                             .padding(0.dp, 0.dp, 0.dp, 50.dp)
                     )
                 }
-                MainAppScreenStates.TopicPickPage -> {}
+                MainAppScreenStates.TopicPickPage -> {
+                    PickTopicScreen()
+                }
                 MainAppScreenStates.SavedNewsPage -> {}
                 MainAppScreenStates.ProfilePage -> {}
             }
@@ -45,9 +48,12 @@ fun MainAppScreen(navigator: DestinationsNavigator) {
         BottomNavigationBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .background(colors.background)
                 .clip(RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp))
-                .border(width = 1.dp, color = colors.surface)
+                .background(colors.surface)
+                .padding(0.dp, 1.dp, 0.dp, 0.dp)
+                .clip(RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp))
+                .background(colors.background),
+            screen.value
         )
     }
 }

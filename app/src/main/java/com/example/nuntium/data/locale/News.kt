@@ -26,7 +26,7 @@ class News : Serializable {
         title: String,
         author: String,
         content: String,
-        image: String,
+        image: String?,
         source: String,
         isSaved: Boolean = false
     ) {
