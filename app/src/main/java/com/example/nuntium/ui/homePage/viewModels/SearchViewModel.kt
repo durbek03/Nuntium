@@ -1,5 +1,6 @@
 package com.example.nuntium.ui.homePage.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nuntium.constants.Constants
@@ -37,7 +38,8 @@ class SearchViewModel @Inject constructor(
     private fun handleScrollIndex() {
         viewModelScope.launch {
             scrollIndex.collect {
-                if (it + 1 >= currentPage * 20) {
+                Log.d("SearchViewModel", "handleScrollIndex: $currentPage")
+                if (it + 2 >= currentPage * 20) {
                     if (!loading) {
                         page.emit(currentPage + 1)
                     }

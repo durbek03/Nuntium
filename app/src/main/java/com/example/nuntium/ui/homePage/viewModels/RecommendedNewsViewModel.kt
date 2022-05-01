@@ -39,8 +39,10 @@ class RecommendedNewsViewModel @Inject constructor(
     private fun handleScrollIndex() {
         viewModelScope.launch {
             scrollIndex.collect {
-                if (it + 1 == currentPage * 20 + 3) {
+                Log.d(TAG, "handleScrollIndex: index: $it")
+                if (it == currentPage * 20 + 2) {
                     if (!loading) {
+                        Log.d(TAG, "handleScrollIndex: loadNextPage")
                         page.emit(currentPage + 1)
                     }
                 }
@@ -56,7 +58,6 @@ class RecommendedNewsViewModel @Inject constructor(
                 loading = true
                 emitLoading()
                 try {
-                    if (query.value.isBlank()) query.value = "random"
                     val news = apiRepository.getNews(it, query = query.value)
                     emitLoaded(news)
                     loading = false
@@ -71,6 +72,9 @@ class RecommendedNewsViewModel @Inject constructor(
     private fun handleTopicChange() {
         viewModelScope.launch {
             query.collectLatest {
+                if (it.isEmpty()) {
+                    query.value = "random"
+                }
                 Log.d(TAG, "handleTopicChange: $it")
                 loading = false
                 recommendNews.value = emptyList()

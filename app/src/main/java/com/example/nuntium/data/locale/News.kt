@@ -3,9 +3,10 @@ package com.example.nuntium.data.locale
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity
-class News {
+class News : Serializable {
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null
     @ColumnInfo

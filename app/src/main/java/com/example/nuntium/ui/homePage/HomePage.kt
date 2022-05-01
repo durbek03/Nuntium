@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,56 +33,41 @@ import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
 import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
 import com.example.nuntium.ui.homePage.viewModels.SearchViewModel
 import com.example.nuntium.ui.homePage.viewModels.TopicNewsViewModel
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Destination
 @Composable
-fun HomePage() {
-    val colors = MaterialTheme.colors
-    //homeviewmodel
-    val homeViewModel: HomeViewModel = hiltViewModel()
-    val homePageState = homeViewModel.homePageState.collectAsState()
-    val casualVerticalScrollState = rememberLazyListState()
+fun HomePage(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
     //recommendViewModel
     val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
     val recommendNews = recommendedNewsViewModel.recommendNews.collectAsState()
     //topicNewsViewModel
     val topicNewsViewModel: TopicNewsViewModel = hiltViewModel()
     val selectedTabItem = topicNewsViewModel.selectedTabItem.collectAsState()
-    //searchViewModel
-    val searchViewModel: SearchViewModel = hiltViewModel()
     //ui related
     val columnState = rememberLazyListState()
     val topicListState = rememberLazyListState()
     val topicNewsListState = rememberLazyListState()
     val verticalLastIndex = columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(selectedTabItem.value) {
         topicNewsListState.scrollToItem(0)
     }
     LaunchedEffect(key1 = verticalLastIndex, key2 = recommendNews.value) {
         verticalLastIndex ?: return@LaunchedEffect
+        Log.d("HomePage", "HomePage: newIndex: $verticalLastIndex")
         recommendedNewsViewModel.scrollIndex.emit(verticalLastIndex)
     }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = colors.background)
+        modifier = modifier
     ) {
-        Crossfade(targetState = homePageState.value) {
-            when (it) {
-                HomePageStates.CasualPage -> {
-                    CasualPage(
-                        verticalScrollState = casualVerticalScrollState,
-                        topicListState = topicListState,
-                        topicNewsListState = topicNewsListState
-                    )
-                }
-                HomePageStates.SearchOn -> {
-                    SearchPage(modifier = Modifier, columnState = rememberLazyListState())
-                }
-            }
-        }
+        CasualPage(
+            verticalScrollState = columnState,
+            topicListState = topicListState,
+            topicNewsListState = topicNewsListState,
+            navigator = navigator
+        )
     }
 }

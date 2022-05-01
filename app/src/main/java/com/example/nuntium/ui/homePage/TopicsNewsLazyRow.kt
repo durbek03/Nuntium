@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,16 +36,21 @@ import com.example.nuntium.R
 import com.example.nuntium.constants.isScrolledToTheEnd
 import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
+import com.example.nuntium.ui.destinations.NewsDetailedScreenDestination
 import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
 import com.example.nuntium.ui.homePage.viewModels.TopicNewsViewModel
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
+fun TopicNewsLazyRow(
+    modifier: Modifier = Modifier,
+    state: LazyListState,
+    navigator: DestinationsNavigator
+) {
     val topicNewsViewModel: TopicNewsViewModel = hiltViewModel()
     val topicNews = topicNewsViewModel.topicNews.collectAsState()
-    val selectedTabItem = topicNewsViewModel.selectedTabItem.collectAsState()
     val lazyRowState = state
     val lastIndex = lazyRowState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
     LaunchedEffect(key1 = lastIndex, topicNews.value) {
@@ -61,58 +67,15 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
             Crossfade(targetState = item) { state ->
                 when (state) {
                     is ListItemState.LoadedItemState -> {
-                        Box(
+                        TopicNewsItem(
                             modifier = Modifier
                                 .padding(5.dp, 0.dp)
                                 .fillMaxHeight()
                                 .aspectRatio(1f)
-                                .clip(RoundedCornerShape(15.dp)),
-                        ) {
-                            Image(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(15.dp)),
-                                painter = rememberImagePainter(state.item.image),
-                                contentDescription = "News Image",
-                                contentScale = ContentScale.FillBounds
-                            )
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.BottomCenter
-                            ) {
-                                Text(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .fillMaxHeight(0.3f)
-                                        .background(color = colorResource(id = R.color.semiTransparent))
-                                        .padding(15.dp, 0.dp),
-                                    text = state.item.title,
-                                    fontSize = 17.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 3
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(0.dp, 15.dp, 15.dp, 0.dp),
-                                contentAlignment = Alignment.TopEnd
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_save),
-                                    contentDescription = "Save",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .width(30.dp)
-                                        .height(30.dp)
-                                        .clip(RoundedCornerShape(50.dp))
-                                        .background(color = colorResource(id = R.color.semiTransparent))
-                                        .padding(5.dp)
-                                )
-                            }
-                        }
+                                .clip(RoundedCornerShape(15.dp))
+                                .clickable { navigator.navigate(NewsDetailedScreenDestination(state.item)) },
+                            state = state
+                        )
                     }
                     is ListItemState.LoadingItemState -> {
                         val customBrush = customBrush()
@@ -127,6 +90,58 @@ fun TopicNewsLazyRow(modifier: Modifier = Modifier, state: LazyListState) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun TopicNewsItem(modifier: Modifier = Modifier, state: ListItemState<News>) {
+    Box(
+        modifier = modifier,
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(15.dp)),
+            painter = rememberImagePainter(state.data?.image),
+            contentDescription = "News Image",
+            contentScale = ContentScale.FillBounds
+        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.3f)
+                    .background(color = colorResource(id = R.color.semiTransparent))
+                    .padding(15.dp, 0.dp),
+                text = state.data?.title ?: "not found",
+                fontSize = 17.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 3
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp, 15.dp, 15.dp, 0.dp),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_save),
+                contentDescription = "Save",
+                tint = Color.White,
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(color = colorResource(id = R.color.semiTransparent))
+                    .padding(5.dp)
+            )
         }
     }
 }

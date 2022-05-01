@@ -1,4 +1,4 @@
-package com.example.nuntium.ui.homePage
+package com.example.nuntium.ui.appLevelComp
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -16,23 +16,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.nuntium.R
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun ScrollController(scrollState: LazyListState) {
+fun ScrollController(scrollState: LazyListState, showAfterIndex: Int, botOffset: Dp = 15.dp) {
     val colors = MaterialTheme.colors
     val coroutineScope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp),
+            .padding(0.dp, 0.dp, 15.dp, botOffset),
         contentAlignment = Alignment.BottomEnd
     ) {
         AnimatedVisibility(
-            visible = scrollState.firstVisibleItemIndex >= 3,
+            visible = scrollState.firstVisibleItemIndex >= showAfterIndex,
             enter = fadeIn(), exit = fadeOut()
         ) {
             Icon(

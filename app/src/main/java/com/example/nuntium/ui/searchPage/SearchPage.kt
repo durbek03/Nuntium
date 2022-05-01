@@ -1,4 +1,4 @@
-package com.example.nuntium.ui.homePage
+package com.example.nuntium.ui.searchPage
 
 import android.util.Log
 import androidx.compose.animation.Crossfade
@@ -10,9 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,33 +23,40 @@ import coil.compose.rememberImagePainter
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
-import com.example.nuntium.ui.appLevelStates.WindowInfo
 import com.example.nuntium.ui.appLevelStates.rememberWindowInfo
-import com.example.nuntium.ui.homePage.intent.HomePageIntent
-import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
 import com.example.nuntium.ui.homePage.viewModels.SearchViewModel
 import kotlinx.coroutines.launch
 import com.example.nuntium.R
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
+import com.example.nuntium.ui.appLevelComp.ScrollController
+import com.example.nuntium.ui.homePage.HeaderText
+import com.example.nuntium.ui.homePage.SearchBar
+import com.ramcosta.composedestinations.annotation.Destination
 
 
 @Composable
+@Destination
 fun SearchPage(
     modifier: Modifier = Modifier,
-    columnState: LazyListState,
+    columnState: LazyListState = rememberLazyListState(),
     rowState: LazyListState = rememberLazyListState()
 ) {
+    Log.d("SearchPage", "SearchPage: Search Page")
     //viewModel
-    val homeViewModel: HomeViewModel = hiltViewModel()
     val searchViewModel: SearchViewModel = hiltViewModel()
     //remembers
     val coroutineScope = rememberCoroutineScope()
     val searchResponse = searchViewModel.response.collectAsState()
+    val scrollIndex = columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+
     //ui
     val colors = MaterialTheme.colors
     val windowInfo = rememberWindowInfo()
+
+    LaunchedEffect(key1 = scrollIndex, key2 = searchResponse.value) {
+        if (scrollIndex != null) {
+            searchViewModel.scrollIndex.emit(scrollIndex)
+        }
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -70,16 +75,14 @@ fun SearchPage(
                     .background(color = MaterialTheme.colors.surface),
                 onFocusChanged = {},
                 leftIconClicked = {
-                    coroutineScope.launch {
-                        homeViewModel.action.emit(HomePageIntent.OpenCasualPage)
-                    }
                 },
                 onTextChange = { searchText ->
                     coroutineScope.launch {
                         searchViewModel.query.emit(searchText)
                     }
                 },
-                focusOnLaunch = true
+                focusOnLaunch = true,
+                icon = R.drawable.ic_cancel
             )
         }
         itemsIndexed(searchResponse.value) { index, item ->
@@ -105,6 +108,7 @@ fun SearchPage(
             }
         }
     }
+    ScrollController(scrollState = columnState, showAfterIndex = 3)
 }
 
 @OptIn(ExperimentalCoilApi::class)

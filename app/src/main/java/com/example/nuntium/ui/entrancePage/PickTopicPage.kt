@@ -18,12 +18,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.ui.appLevelComp.TopicPicker
-import com.example.nuntium.ui.destinations.HomePageDestination
+import com.example.nuntium.ui.destinations.MainAppScreenDestination
 import com.example.nuntium.ui.destinations.PickTopicPageDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -81,7 +79,7 @@ fun PickTopicPage(navigator: DestinationsNavigator) {
                 .clip(RoundedCornerShape(15.dp))
                 .background(color = colors.primary),
             onClick = {
-                navigator.navigate(direction = HomePageDestination()) {
+                navigator.navigate(direction = MainAppScreenDestination()) {
                     this.popUpTo(PickTopicPageDestination.route) {
                         inclusive = true
                     }

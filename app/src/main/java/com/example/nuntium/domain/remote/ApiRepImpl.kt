@@ -4,12 +4,8 @@ import android.util.Log
 import com.example.nuntium.data.models.toNewsList
 import com.example.nuntium.data.remote.ApiService
 import com.example.nuntium.data.locale.News
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.supervisorScope
-import okhttp3.ResponseBody
-import retrofit2.HttpException
-import retrofit2.Response
+import java.lang.Exception
 import javax.inject.Inject
 
 class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository {
@@ -22,14 +18,17 @@ class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository
 
     override suspend fun getNews(page: Int, query: String): List<News> {
         Log.d(TAG, "getNews: request")
-        delay(1000)
-        //      val response = apiService.getNews(page = page, query = query).toNewsList()
+        delay(2500)
         return try {
-         //   return apiService.getNews(query = query, page = page).toNewsList()
             return response
         } catch (e:java.lang.Exception) {
             emptyList()
         }
+//        return try {
+//            apiService.getNews(query = query, page = page).toNewsList()
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
     }
 
     fun loadData() {

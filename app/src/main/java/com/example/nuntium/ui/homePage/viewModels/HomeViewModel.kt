@@ -14,6 +14,7 @@ class HomeViewModel : ViewModel() {
     private val TAG = "HomeViewModel"
     val action = MutableSharedFlow<HomePageIntent>()
     val homePageState = MutableStateFlow<HomePageStates>(HomePageStates.CasualPage)
+    val backPressEnabled = MutableStateFlow<Boolean>(true)
 
     init {
         Log.d(TAG, "init: init")

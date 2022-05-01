@@ -1,5 +1,6 @@
 package com.example.nuntium.ui.homePage
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,17 +8,18 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nuntium.constants.Constants
+import com.example.nuntium.ui.appLevelComp.ScrollController
+import com.example.nuntium.ui.destinations.SearchPageDestination
 import com.example.nuntium.ui.homePage.intent.HomePageIntent
 import com.example.nuntium.ui.homePage.viewModels.HomeViewModel
 import com.example.nuntium.ui.homePage.viewModels.RecommendedNewsViewModel
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,7 +27,8 @@ fun CasualPage(
     modifier: Modifier = Modifier,
     verticalScrollState: LazyListState,
     topicListState: LazyListState,
-    topicNewsListState: LazyListState
+    topicNewsListState: LazyListState,
+    navigator: DestinationsNavigator
 ) {
     //viewModels
     val homeViewModel: HomeViewModel = hiltViewModel()
@@ -36,9 +39,15 @@ fun CasualPage(
     //uiRelated
     val topicList = Constants.TOPICS
     val colors = MaterialTheme.colors
+
+    LaunchedEffect(key1 = true) {
+        homeViewModel.backPressEnabled.emit(true)
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        state = verticalScrollState
+        state = verticalScrollState,
+        contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, 50.dp)
     ) {
         item {
             HeaderText()
@@ -55,9 +64,7 @@ fun CasualPage(
                     .background(color = MaterialTheme.colors.surface),
                 onFocusChanged = {
                     if (it) {
-                        coroutineScope.launch {
-                            homeViewModel.action.emit(HomePageIntent.OpenSearchPage)
-                        }
+                        navigator.navigate(SearchPageDestination)
                     }
                 },
                 leftIconClicked = {},
@@ -77,7 +84,8 @@ fun CasualPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp),
-                    state = topicNewsListState
+                    state = topicNewsListState,
+                    navigator = navigator
                 )
                 RecHeader(
                     modifier = Modifier
@@ -90,4 +98,5 @@ fun CasualPage(
             RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
         }
     }
+    ScrollController(scrollState = verticalScrollState, 3, 50.dp)
 }

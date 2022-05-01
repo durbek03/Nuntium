@@ -28,7 +28,8 @@ fun SearchBar(
     onFocusChanged: (Boolean) -> Unit,
     leftIconClicked: () -> Unit,
     onTextChange: (String) -> Unit,
-    focusOnLaunch: Boolean
+    focusOnLaunch: Boolean,
+    icon: Int = R.drawable.ic_search
 ) {
     val textFieldValue = remember {
         mutableStateOf(value)
@@ -51,8 +52,7 @@ fun SearchBar(
                     leftIconClicked.invoke()
                 },
             painter = painterResource(
-                id =
-                if (homePageState.value is HomePageStates.CasualPage) R.drawable.ic_search else R.drawable.ic_cancel
+                icon
             ),
             contentDescription = "Search",
             tint = MaterialTheme.colors.onSurface
