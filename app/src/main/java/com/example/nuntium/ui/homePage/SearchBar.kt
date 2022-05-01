@@ -3,11 +3,11 @@ package com.example.nuntium.ui.homePage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -22,11 +22,22 @@ import com.example.nuntium.ui.homePage.viewModels.TopicNewsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier) {
+fun SearchBar(
+    value: String,
+    modifier: Modifier = Modifier,
+    onFocusChanged: (Boolean) -> Unit,
+    leftIconClicked: () -> Unit,
+    onTextChange: (String) -> Unit,
+    focusOnLaunch: Boolean
+) {
+    val textFieldValue = remember {
+        mutableStateOf(value)
+    }
     val homeViewModel: HomeViewModel = hiltViewModel()
-    val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val homePageState = homeViewModel.homePageState.collectAsState()
+    val focusRequester = remember {
+        FocusRequester
+    }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -37,9 +48,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
                 .fillMaxHeight(0.4f)
                 .aspectRatio(1f, true)
                 .clickable {
-                    if (homePageState.value is HomePageStates.SearchOn) {
-                    focusManager.clearFocus()
-                }
+                    leftIconClicked.invoke()
                 },
             painter = painterResource(
                 id =
@@ -49,21 +58,17 @@ fun SearchBar(modifier: Modifier = Modifier) {
             tint = MaterialTheme.colors.onSurface
         )
         TextField(
-            value = "",
-            onValueChange = {},
+            value = textFieldValue.value,
+            onValueChange = {
+                textFieldValue.value = it
+                onTextChange.invoke(it)
+            },
             modifier = Modifier
                 .fillMaxWidth(0.7f)
                 .onFocusEvent {
-                    if (it.isFocused) {
-                        coroutineScope.launch {
-                            homeViewModel.action.emit(HomePageIntent.OpenSearchPage)
-                        }
-                    } else {
-                        coroutineScope.launch {
-                            homeViewModel.action.emit(HomePageIntent.OpenCasualPage)
-                        }
-                    }
-                },
+                    onFocusChanged.invoke(it.isFocused)
+                }
+                .focusRequester(focusRequester.Default),
             singleLine = true,
             placeholder = {
                 Text(
@@ -85,5 +90,10 @@ fun SearchBar(modifier: Modifier = Modifier) {
             contentDescription = "Search",
             tint = MaterialTheme.colors.onSurface
         )
+    }
+    if (focusOnLaunch) {
+        LaunchedEffect(key1 = true) {
+            focusRequester.Default.requestFocus()
+        }
     }
 }

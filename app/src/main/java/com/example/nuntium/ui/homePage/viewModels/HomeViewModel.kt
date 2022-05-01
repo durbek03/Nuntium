@@ -20,9 +20,6 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             action.collectLatest {
                 when (it) {
-                    is HomePageIntent.ResetTopicNewsRow -> {
-
-                    }
                     HomePageIntent.OpenCasualPage -> {
                         homePageState.emit(HomePageStates.CasualPage)
                     }
