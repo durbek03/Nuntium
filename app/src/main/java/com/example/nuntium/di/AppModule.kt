@@ -1,6 +1,7 @@
 package com.example.nuntium.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.data.locale.AppDatabase
@@ -9,6 +10,7 @@ import com.example.nuntium.domain.locale.RoomImpl
 import com.example.nuntium.domain.locale.RoomRepository
 import com.example.nuntium.domain.remote.ApiRepImpl
 import com.example.nuntium.domain.remote.ApiRepository
+import com.example.nuntium.sharedPreferences.MySharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +23,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferences(@ApplicationContext context: Context) : MySharedPreferences {
+        val sharedPreferences = MySharedPreferences
+        sharedPreferences.init(context = context)
+        return sharedPreferences
+    }
 
     @Singleton
     @Provides

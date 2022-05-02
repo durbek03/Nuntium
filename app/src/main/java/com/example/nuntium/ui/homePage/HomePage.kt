@@ -68,6 +68,7 @@ fun HomePage(
 
     LaunchedEffect(key1 = true) {
         firstLaunch.value = false
+        mainViewModel.firstLaunched()
     }
 
     LaunchedEffect(key1 = verticalLastIndex, key2 = recommendNews.value) {

@@ -13,7 +13,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nuntium.MainViewModel
 import com.example.nuntium.R
+import com.example.nuntium.ui.destinations.MainAppScreenDestination
 import com.example.nuntium.ui.destinations.SplashPageDestination
 import com.example.nuntium.ui.destinations.WelcomePageDestination
 import com.ramcosta.composedestinations.annotation.Destination
@@ -24,6 +27,7 @@ import kotlinx.coroutines.launch
 @Destination(start = true, route = "splash")
 @Composable
 fun SplashPage(navigator: DestinationsNavigator) {
+    val mainViewModel: MainViewModel = hiltViewModel()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,13 +57,24 @@ fun SplashPage(navigator: DestinationsNavigator) {
             LaunchedEffect(key1 = true) {
                 coroutineScope.launch {
                     delay(1500)
-                    navigator.navigate(
-                        WelcomePageDestination,
-                        onlyIfResumed = true, builder = {
-                            this.popUpTo(SplashPageDestination.route) {
-                                inclusive = true
-                            }
-                        })
+                    if (mainViewModel.isFirstLaunch()) {
+                        navigator.navigate(
+                            WelcomePageDestination,
+                            onlyIfResumed = true, builder = {
+                                this.popUpTo(SplashPageDestination.route) {
+                                    inclusive = true
+                                }
+                            })
+                    } else {
+                        navigator.navigate(
+                            MainAppScreenDestination,
+                            onlyIfResumed = true,
+                            builder = {
+                                this.popUpTo(SplashPageDestination.route) {
+                                    inclusive = true
+                                }
+                            })
+                    }
                 }
             }
         }
