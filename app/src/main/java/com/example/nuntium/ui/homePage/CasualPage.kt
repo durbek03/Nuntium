@@ -40,6 +40,7 @@ fun CasualPage(
     //uiRelated
     val topicList = Constants.TOPICS
     val colors = MaterialTheme.colors
+    val recommendation = Recommendation(navigator)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -88,7 +89,7 @@ fun CasualPage(
                     state = topicNewsListState,
                     navigator = navigator
                 )
-                RecHeader(
+                recommendation.RecHeader(
                     modifier = Modifier
                         .padding(15.dp, 15.dp, 15.dp, 10.dp)
                         .fillMaxWidth()
@@ -96,7 +97,7 @@ fun CasualPage(
             }
         }
         itemsIndexed(items = recommendNews.value) { index, item ->
-            RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
+            recommendation.RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
         }
     }
     ScrollController(scrollState = verticalScrollState, 3, 50.dp)

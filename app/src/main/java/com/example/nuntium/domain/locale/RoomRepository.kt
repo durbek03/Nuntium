@@ -5,8 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RoomRepository {
     fun saveNews(news: News)
-    suspend fun deleteNotSavedNews()
     fun unSaveNews(news: News)
     fun getSavedNews(): Flow<List<News>>
-    fun getCachedNews(): Flow<List<News>>
+    fun checkIfExists(title: String): News?
 }

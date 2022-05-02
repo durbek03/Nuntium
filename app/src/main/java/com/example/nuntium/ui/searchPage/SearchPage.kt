@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.example.nuntium.MainViewModel
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.ui.appLevelComp.customBrush
 import com.example.nuntium.ui.appLevelStates.ListItemState
@@ -28,11 +31,13 @@ import com.example.nuntium.ui.homePage.viewModels.SearchViewModel
 import kotlinx.coroutines.launch
 import com.example.nuntium.R
 import com.example.nuntium.ui.appLevelComp.ScrollController
+import com.example.nuntium.ui.destinations.NewsDetailedScreenDestination
+import com.example.nuntium.ui.detailedNewsPage.DetailedNewsViewModel
 import com.example.nuntium.ui.homePage.HeaderText
 import com.example.nuntium.ui.homePage.SearchBar
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 @Destination
@@ -91,7 +96,11 @@ fun SearchPage(
         itemsIndexed(searchResponse.value) { index, item ->
             Crossfade(targetState = windowInfo.height) {
                 if (it * 1.8f >= windowInfo.width) {
-                    SearchItemMedium(item = item, modifier = Modifier.padding(15.dp, 5.dp))
+                    SearchItemMedium(
+                        item = item,
+                        modifier = Modifier.padding(15.dp, 5.dp),
+                        navigator = navigator
+                    )
                 }
             }
         }
@@ -104,7 +113,11 @@ fun SearchPage(
                         contentPadding = PaddingValues(10.dp, 0.dp),
                     ) {
                         itemsIndexed(searchResponse.value) { index, item ->
-                            SearchItemExtended(item = item, modifier = Modifier.padding(5.dp))
+                            SearchItemExtended(
+                                item = item,
+                                modifier = Modifier.padding(5.dp),
+                                navigator = navigator
+                            )
                         }
                     }
                 }
@@ -116,7 +129,11 @@ fun SearchPage(
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun SearchItemMedium(modifier: Modifier = Modifier, item: ListItemState<News>) {
+fun SearchItemMedium(
+    modifier: Modifier = Modifier,
+    item: ListItemState<News>,
+    navigator: DestinationsNavigator
+) {
     val colors = MaterialTheme.colors
     Box(
         modifier = modifier
@@ -125,12 +142,16 @@ fun SearchItemMedium(modifier: Modifier = Modifier, item: ListItemState<News>) {
             .clip(RoundedCornerShape(15.dp))
             .background(color = colors.surface)
     ) {
-        SearchItem(item = item)
+        SearchItem(item = item, navigator = navigator)
     }
 }
 
 @Composable
-fun SearchItemExtended(modifier: Modifier = Modifier, item: ListItemState<News>) {
+fun SearchItemExtended(
+    modifier: Modifier = Modifier,
+    item: ListItemState<News>,
+    navigator: DestinationsNavigator
+) {
     val windowInfo = rememberWindowInfo()
     val colors = MaterialTheme.colors
     Box(
@@ -140,12 +161,16 @@ fun SearchItemExtended(modifier: Modifier = Modifier, item: ListItemState<News>)
             .clip(RoundedCornerShape(15.dp))
             .background(color = colors.surface)
     ) {
-        SearchItem(item = item)
+        SearchItem(item = item, navigator = navigator)
     }
 }
 
 @Composable
-fun SearchItem(item: ListItemState<News>) {
+fun SearchItem(item: ListItemState<News>, navigator: DestinationsNavigator) {
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val detailedNewsViewModel: DetailedNewsViewModel = hiltViewModel()
+    val coroutineScope = rememberCoroutineScope()
+    val savedNews = mainViewModel.savedNews.collectAsState()
     val brush = customBrush()
     val colors = MaterialTheme.colors
     Crossfade(targetState = item) {
@@ -153,12 +178,18 @@ fun SearchItem(item: ListItemState<News>) {
             is ListItemState.LoadedItemState -> {
                 Image(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .clickable {
+                            navigator.navigate(NewsDetailedScreenDestination(news = item.data!!))
+                        },
                     painter = rememberImagePainter(item.data?.image ?: ""),
                     contentDescription = "image",
                     contentScale = ContentScale.FillBounds
                 )
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -174,9 +205,17 @@ fun SearchItem(item: ListItemState<News>) {
                             modifier = Modifier.fillMaxWidth(0.7f)
                         )
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_save),
+                            painter = painterResource(id = if (item.data!!.title in savedNews.value.map { it.title }) R.drawable.ic_save_filled else R.drawable.ic_save_unfilled),
                             contentDescription = "Icon save",
-                            tint = colors.onSurface
+                            tint = colors.onSurface,
+                            modifier = Modifier.clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    detailedNewsViewModel.savingMethod(item.data)
+                                }
+                            }
                         )
                     }
                 }

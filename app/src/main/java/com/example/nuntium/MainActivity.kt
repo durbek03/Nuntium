@@ -43,11 +43,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         handler = Handler(Looper.getMainLooper())
-        lifecycleScope.launch {
-            homeViewModel.backPressEnabled.collectLatest {
-                Log.d(TAG, "onCreate: $it")
-            }
-        }
         setContent {
             NuntiumTheme {
                 // A surface container using the 'background' color from the theme

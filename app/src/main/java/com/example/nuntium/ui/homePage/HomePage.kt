@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nuntium.MainViewModel
 import com.example.nuntium.R
 import com.ramcosta.composedestinations.annotation.Destination
 import com.example.nuntium.constants.Constants
@@ -39,7 +40,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HomePage(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
+fun HomePage(
+    navigator: DestinationsNavigator,
+    modifier: Modifier = Modifier,
+) {
+    val firstLaunch = remember {
+        mutableStateOf(true)
+    }
     //recommendViewModel
     val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
     val recommendNews = recommendedNewsViewModel.recommendNews.collectAsState()
@@ -47,14 +54,22 @@ fun HomePage(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
     val topicNewsViewModel: TopicNewsViewModel = hiltViewModel()
     val selectedTabItem = topicNewsViewModel.selectedTabItem.collectAsState()
     //ui related
-    val columnState = rememberLazyListState()
-    val topicListState = rememberLazyListState()
-    val topicNewsListState = rememberLazyListState()
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val columnState: LazyListState = mainViewModel.columnState
+    val topicListState: LazyListState = mainViewModel.topicListState
+    val topicNewsListState: LazyListState = mainViewModel.topicNewsListState
     val verticalLastIndex = columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
 
     LaunchedEffect(selectedTabItem.value) {
-        topicNewsListState.scrollToItem(0)
+        if (!firstLaunch.value) {
+            topicNewsListState.scrollToItem(0)
+        }
     }
+
+    LaunchedEffect(key1 = true) {
+        firstLaunch.value = false
+    }
+
     LaunchedEffect(key1 = verticalLastIndex, key2 = recommendNews.value) {
         verticalLastIndex ?: return@LaunchedEffect
         Log.d("HomePage", "HomePage: newIndex: $verticalLastIndex")

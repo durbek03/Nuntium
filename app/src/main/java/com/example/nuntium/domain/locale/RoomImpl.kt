@@ -10,20 +10,15 @@ class RoomImpl @Inject constructor(private val newsDao: NewsDao) : RoomRepositor
         newsDao.saveNews(news = news)
     }
 
-    override suspend fun deleteNotSavedNews() {
-        newsDao.deleteNotSavedNews(false)
-    }
-
     override fun unSaveNews(news: News) {
-        newsDao.unSaveNews(news = news)
+        newsDao.unSaveNews(title = news.title)
     }
 
     override fun getSavedNews(): Flow<List<News>> {
         return newsDao.getSavedNews()
     }
 
-    override fun getCachedNews(): Flow<List<News>> {
-        return newsDao.getCachedNews()
+    override fun checkIfExists(title: String): News? {
+        return newsDao.checkIfExists(title = title)
     }
-
 }

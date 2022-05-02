@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nuntium.MainViewModel
 import com.example.nuntium.ui.homePage.HomePage
+import com.example.nuntium.ui.savedNewsPage.SavedNewsScreen
 import com.example.nuntium.ui.selectTopicPage.PickTopicScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -41,7 +42,9 @@ fun MainAppScreen(navigator: DestinationsNavigator) {
                 MainAppScreenStates.TopicPickPage -> {
                     PickTopicScreen()
                 }
-                MainAppScreenStates.SavedNewsPage -> {}
+                MainAppScreenStates.SavedNewsPage -> {
+                    SavedNewsScreen(navigator = navigator)
+                }
                 MainAppScreenStates.ProfilePage -> {}
             }
         }
