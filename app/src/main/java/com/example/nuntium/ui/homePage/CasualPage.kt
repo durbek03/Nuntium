@@ -107,5 +107,5 @@ fun CasualPage(
             recommendation.RecItemStates(itemState = item, modifier = Modifier.fillMaxWidth())
         }
     }
-    ScrollController(scrollState = verticalScrollState, 3, 50.dp)
+    ScrollController(scrollState = verticalScrollState, 3)
 }
