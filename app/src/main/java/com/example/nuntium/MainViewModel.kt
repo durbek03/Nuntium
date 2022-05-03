@@ -36,6 +36,7 @@ class MainViewModel @Inject constructor(
     val savedNewsListState: LazyListState = LazyListState()
 
     val language = MutableStateFlow<String>("en")
+    val canBackPress = MutableStateFlow<Boolean>(true)
 
     val appThemeMode: MutableStateFlow<AppThemeMode> =
         MutableStateFlow<AppThemeMode>(AppThemeMode.LightMode)

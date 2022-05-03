@@ -50,6 +50,7 @@ fun SearchPage(
     Log.d("SearchPage", "SearchPage: Search Page")
     //viewModel
     val searchViewModel: SearchViewModel = hiltViewModel()
+    val mainViewModel: MainViewModel = hiltViewModel()
     //remembers
     val coroutineScope = rememberCoroutineScope()
     val searchResponse = searchViewModel.response.collectAsState()
@@ -63,6 +64,10 @@ fun SearchPage(
         if (scrollIndex != null) {
             searchViewModel.scrollIndex.emit(scrollIndex)
         }
+    }
+
+    LaunchedEffect(key1 = true) {
+        mainViewModel.canBackPress.emit(false)
     }
 
     LazyColumn(

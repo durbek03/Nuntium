@@ -33,6 +33,9 @@ fun LanguagesScreen(navigator: DestinationsNavigator) {
     val languages = listOf<String>("English", "Italian", "Spanish", "French")
     val mainViewModel: MainViewModel = hiltViewModel()
     val selectedLanguage = mainViewModel.language.collectAsState()
+    LaunchedEffect(key1 = true) {
+        mainViewModel.canBackPress.emit(false)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()

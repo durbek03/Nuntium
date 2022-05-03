@@ -10,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,10 @@ fun SavedNewsScreen(navigator: DestinationsNavigator) {
     val colors = MaterialTheme.colors
     val mainViewModel: MainViewModel = hiltViewModel()
     val savedNews = mainViewModel.savedNews.collectAsState()
+
+    LaunchedEffect(key1 = true) {
+        mainViewModel.canBackPress.emit(true)
+    }
 
     if (savedNews.value.isNotEmpty()) {
         LazyColumn(

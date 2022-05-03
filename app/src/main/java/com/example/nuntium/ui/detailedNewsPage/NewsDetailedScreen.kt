@@ -22,6 +22,7 @@ import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
+import com.example.nuntium.MainViewModel
 import com.example.nuntium.R
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.ui.detailedNewsPage.DetailedNewsViewModel
@@ -42,11 +43,13 @@ fun NewsDetailedScreen(
     val savedNews = remember {
         mutableStateOf(false)
     }
+    val mainViewModel: MainViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
         coroutineScope.launch(Dispatchers.IO) {
             savedNews.value = viewModel.checkIfSaved(news = news)
         }
+        mainViewModel.canBackPress.emit(false)
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Image(

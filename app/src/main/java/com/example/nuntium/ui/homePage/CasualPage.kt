@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nuntium.MainViewModel
 import com.example.nuntium.constants.Constants
 import com.example.nuntium.ui.appLevelComp.ScrollController
 import com.example.nuntium.ui.destinations.SearchPageDestination
@@ -35,12 +36,18 @@ fun CasualPage(
     val homeViewModel: HomeViewModel = hiltViewModel()
     val recommendedNewsViewModel: RecommendedNewsViewModel = hiltViewModel()
     val recommendNews = recommendedNewsViewModel.recommendNews.collectAsState()
+    val mainViewModel: MainViewModel = hiltViewModel()
     //remembers
     val coroutineScope = rememberCoroutineScope()
     //uiRelated
     val topicList = Constants.TOPICS
     val colors = MaterialTheme.colors
     val recommendation = Recommendation(navigator)
+    Log.d("Focus change", "CasualPage: navigating")
+
+    LaunchedEffect(key1 = true) {
+        mainViewModel.canBackPress.emit(true)
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
