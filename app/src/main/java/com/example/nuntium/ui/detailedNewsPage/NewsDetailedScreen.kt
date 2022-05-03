@@ -155,11 +155,12 @@ fun NewsDetailedScreen(
                     )
                     Spacer(modifier = Modifier.height(15.dp))
                     Text(
-                        text = news.title, color = Color.White,
+                        text = news.title,
+                        color = Color.White,
                         modifier = Modifier
                             .background(
                                 colorResource(id = R.color.semiTransparent),
-                                shape = RoundedCornerShape(30.dp)
+                                shape = RoundedCornerShape(15.dp)
                             )
                             .padding(10.dp, 5.dp)
                     )
@@ -178,8 +179,9 @@ fun NewsDetailedScreen(
                 text = news.content,
                 color = colors.onBackground,
                 modifier = Modifier
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(15.dp),
+                    .padding(15.dp, 15.dp, 15.dp, 0.dp),
             )
         }
     }

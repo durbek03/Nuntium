@@ -5,6 +5,7 @@ import com.example.nuntium.data.models.toNewsList
 import com.example.nuntium.data.remote.ApiService
 import com.example.nuntium.data.locale.News
 import kotlinx.coroutines.delay
+import org.intellij.lang.annotations.Language
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -16,7 +17,7 @@ class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository
         loadData()
     }
 
-    override suspend fun getNews(page: Int, query: String): List<News> {
+    override suspend fun getNews(page: Int, query: String, language: String): List<News> {
 //        delay(2500)
 //        return try {
 //            return response
@@ -24,7 +25,7 @@ class ApiRepImpl @Inject constructor(val apiService: ApiService) : ApiRepository
 //            emptyList()
 //        }
         return try {
-            apiService.getNews(query = query, page = page).toNewsList()
+            apiService.getNews(query = query, page = page, language = language).toNewsList()
         } catch (e: Exception) {
             Log.d(TAG, "getNews: ${e.message}")
             emptyList()

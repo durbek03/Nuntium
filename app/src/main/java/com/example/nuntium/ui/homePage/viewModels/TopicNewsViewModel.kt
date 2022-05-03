@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nuntium.constants.Constants
+import com.example.nuntium.data.locale.AppDatabase
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.domain.locale.RoomRepository
 import com.example.nuntium.domain.remote.ApiRepository
@@ -12,6 +13,7 @@ import com.example.nuntium.ui.appLevelStates.ListItemState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -22,7 +24,8 @@ import kotlin.coroutines.CoroutineContext
 @HiltViewModel
 class TopicNewsViewModel @Inject constructor(
     val remote: ApiRepository,
-    val locale: RoomRepository
+    val locale: RoomRepository,
+    val appDatabase: AppDatabase
 ) : ViewModel() {
     //general
     private val TAG = "HomeViewModel"
@@ -40,11 +43,36 @@ class TopicNewsViewModel @Inject constructor(
     //response
     val topicNews = MutableStateFlow<List<ListItemState<News>>>(emptyList())
     var loading = false
+    val language = MutableStateFlow<String>("en")
 
     init {
+        handleLanguageChange()
+        getAppLanguage()
         handlePageChange()
         handleTopicChange()
         handleScrollIndex()
+    }
+
+    private fun getAppLanguage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDatabase.appLanguageDao().getLanguage().collectLatest {
+                var lan: String = "en"
+                if (it.isNotEmpty()) {
+                    lan = it[0].language
+                }
+                language.emit(lan)
+            }
+        }
+    }
+
+    private fun handleLanguageChange() {
+        viewModelScope.launch {
+            language.collectLatest {
+                loading = false
+                topicNews.value = emptyList()
+                page.emit(1)
+            }
+        }
     }
 
     private fun handleScrollIndex() {
@@ -79,7 +107,7 @@ class TopicNewsViewModel @Inject constructor(
                 loading = true
                 emitLoading()
                 try {
-                    val news = remote.getNews(currentPage, tabItems[selectedTabItem.value])
+                    val news = remote.getNews(currentPage, tabItems[selectedTabItem.value], language = language.value)
                     emitLoaded(news)
                     loading = false
                 } catch (e: Exception) {

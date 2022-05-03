@@ -30,24 +30,25 @@ fun MainAppScreen(navigator: DestinationsNavigator) {
     val screen = mainViewModel.mainAppScreenState.collectAsState()
     val colors = MaterialTheme.colors
     Box(modifier = Modifier.fillMaxSize()) {
-        Crossfade(targetState = screen) {
-            when (it.value) {
-                MainAppScreenStates.HomePage -> {
-                    HomePage(
-                        navigator = navigator, modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = colors.background)
-                            .padding(0.dp, 0.dp, 0.dp, 50.dp)
-                    )
-                }
-                MainAppScreenStates.TopicPickPage -> {
-                    PickTopicScreen()
-                }
-                MainAppScreenStates.SavedNewsPage -> {
-                    SavedNewsScreen(navigator = navigator)
-                }
-                MainAppScreenStates.ProfilePage -> {
-                    ProfileScreen(navigator = navigator)
+        Box(modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 80.dp)) {
+            Crossfade(targetState = screen) {
+                when (it.value) {
+                    MainAppScreenStates.HomePage -> {
+                        HomePage(
+                            navigator = navigator, modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = colors.background)
+                        )
+                    }
+                    MainAppScreenStates.TopicPickPage -> {
+                        PickTopicScreen()
+                    }
+                    MainAppScreenStates.SavedNewsPage -> {
+                        SavedNewsScreen(navigator = navigator)
+                    }
+                    MainAppScreenStates.ProfilePage -> {
+                        ProfileScreen(navigator = navigator)
+                    }
                 }
             }
         }

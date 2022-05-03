@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nuntium.constants.AppThemeMode
 import com.example.nuntium.data.locale.AppDatabase
+import com.example.nuntium.data.locale.AppLanguage
 import com.example.nuntium.data.locale.AppThemeModeRoom
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.domain.locale.RoomRepository
@@ -34,12 +35,63 @@ class MainViewModel @Inject constructor(
     val topicNewsListState: LazyListState = LazyListState()
     val savedNewsListState: LazyListState = LazyListState()
 
+    val language = MutableStateFlow<String>("en")
+
     val appThemeMode: MutableStateFlow<AppThemeMode> =
         MutableStateFlow<AppThemeMode>(AppThemeMode.LightMode)
 
     init {
+        getAppLanguage()
         loadSavedNews()
         getAppThemeMode()
+    }
+
+    fun changeLanguage(language: String) {
+        var lan = "en"
+        when (language) {
+            "English" -> {
+                lan = "en"
+            }
+            "Spanish" -> {
+                lan = "es"
+            }
+            "Italian" -> {
+                lan = "it"
+            }
+            "French" -> {
+                lan = "fr"
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val dao = room.appLanguageDao()
+            dao.clearTable()
+            dao.changeLanguage(AppLanguage(1, lan))
+        }
+    }
+
+    private fun getAppLanguage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            room.appLanguageDao().getLanguage().collectLatest {
+                var lan = "en"
+                if (it.isNotEmpty()) {
+                    lan = it[0].language
+                }
+                when (lan) {
+                    "en" -> {
+                        language.emit("English")
+                    }
+                    "es" -> {
+                        language.emit("Spanish")
+                    }
+                    "fr" -> {
+                        language.emit("French")
+                    }
+                    "it" -> {
+                        language.emit("Italian")
+                    }
+                }
+            }
+        }
     }
 
     val savedNews = MutableStateFlow<List<News>>(emptyList())

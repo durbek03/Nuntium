@@ -10,7 +10,8 @@ interface ApiService {
     suspend fun getNews(
         @Query("q") query: String,
         @Query("page") page: Int,
-        @Query("apiKey") apikey: String = Constants.API_KEY
+        @Query("apiKey") apikey: String = Constants.API_KEY,
+        @Query("language") language: String = "en"
     ): NewsDto
 
     @GET("top-headlines?country=us")

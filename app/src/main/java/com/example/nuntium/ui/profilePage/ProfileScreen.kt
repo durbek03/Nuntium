@@ -2,6 +2,7 @@ package com.example.nuntium.ui.profilePage
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,7 @@ import com.example.nuntium.MainViewModel
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.example.nuntium.R
 import com.example.nuntium.constants.AppThemeMode
+import com.example.nuntium.ui.destinations.LanguagesScreenDestination
 
 @Composable
 fun ProfileScreen(navigator: DestinationsNavigator) {
@@ -68,6 +70,9 @@ fun ProfileScreen(navigator: DestinationsNavigator) {
                 .height(50.dp)
                 .clip(RoundedCornerShape(15.dp))
                 .background(colors.surface)
+                .clickable {
+                    navigator.navigate(LanguagesScreenDestination)
+                }
                 .padding(10.dp, 0.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween

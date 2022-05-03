@@ -17,6 +17,18 @@ object Constants {
         "History",
         "Fashion"
     )
+    val SELECTOR_TOPICS = listOf<String>(
+        "Middle East",
+        "Cartoons",
+        "Electronics",
+        "Anime",
+        "Cars",
+        "Animals",
+        "Politics",
+        "Movies",
+        "Life",
+        "Celebrities"
+    )
     const val BASE_URL = "https://newsapi.org/v2/"
     const val PAGE_SIZE = 20
     val dummyNews = mutableListOf<News>()

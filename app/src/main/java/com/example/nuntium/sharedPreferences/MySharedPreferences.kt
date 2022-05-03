@@ -7,7 +7,7 @@ import androidx.core.content.edit
 object MySharedPreferences {
     val name = "mySharedPreferences"
     var sharedPreferences: SharedPreferences? = null
-    val key = "0"
+    val launchKey = "0"
 
     fun init(context: Context) {
         if (sharedPreferences == null) {
@@ -17,12 +17,12 @@ object MySharedPreferences {
 
     var isFirstLaunch: Boolean
         get() {
-            val mode = sharedPreferences?.getBoolean(key, true)
+            val mode = sharedPreferences?.getBoolean(launchKey, true)
             return mode ?: true
         }
         set(value) {
             sharedPreferences?.edit {
-                putBoolean(key, value)
+                putBoolean(launchKey, value)
                 commit()
             }
         }

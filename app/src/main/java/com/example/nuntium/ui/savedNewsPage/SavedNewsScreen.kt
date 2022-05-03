@@ -35,7 +35,6 @@ fun SavedNewsScreen(navigator: DestinationsNavigator) {
         LazyColumn(
             state = mainViewModel.savedNewsListState, modifier = Modifier
                 .fillMaxSize()
-                .padding(0.dp, 0.dp, 0.dp, 80.dp)
         ) {
             item {
                 Header()

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nuntium.constants.Constants
+import com.example.nuntium.data.locale.AppDatabase
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.domain.remote.ApiRepository
 import com.example.nuntium.ui.appLevelStates.ListItemState
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
+    val locale: AppDatabase,
     val apiRepository: ApiRepository
 ) : ViewModel() {
     val query = MutableStateFlow<String>("")
@@ -29,10 +31,37 @@ class SearchViewModel @Inject constructor(
     var loading = false
     val scrollIndex = MutableSharedFlow<Int>()
 
+    private val language = MutableStateFlow<String>("en")
+
     init {
+        handleLanguageChange()
+        getAppLanguage()
         handlePageChange()
         handleQueryChange()
         handleScrollIndex()
+    }
+
+    private fun handleLanguageChange() {
+        viewModelScope.launch {
+            language.collectLatest {
+                loading = false
+                currentPage = 1
+                response.value = emptyList()
+                page.emit(1)
+            }
+        }
+    }
+
+    private fun getAppLanguage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            locale.appLanguageDao().getLanguage().collectLatest {
+                var lan: String = "en"
+                if (it.isNotEmpty()) {
+                    lan = it[0].language
+                }
+                language.emit(lan)
+            }
+        }
     }
 
     private fun handleScrollIndex() {
@@ -66,7 +95,7 @@ class SearchViewModel @Inject constructor(
                 emitLoading()
                 loading = true
                 try {
-                    val news = apiRepository.getNews(currentPage, query = query.value)
+                    val news = apiRepository.getNews(currentPage, query = query.value, language = language.value)
                     emitLoaded(news)
                     loading = false
                 } catch (e: Exception) {

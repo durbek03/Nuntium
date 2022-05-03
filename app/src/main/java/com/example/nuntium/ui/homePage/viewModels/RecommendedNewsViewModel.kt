@@ -2,14 +2,16 @@ package com.example.nuntium.ui.homePage.viewModels
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nuntium.constants.Constants
+import com.example.nuntium.data.locale.AppDatabase
 import com.example.nuntium.data.locale.News
 import com.example.nuntium.domain.remote.ApiRepository
+import com.example.nuntium.sharedPreferences.MySharedPreferences
 import com.example.nuntium.ui.appLevelStates.ListItemState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecommendedNewsViewModel @Inject constructor(
-    val apiRepository: ApiRepository
+    val apiRepository: ApiRepository,
+    val locale: AppDatabase
 ) : ViewModel() {
     private val TAG = "RecommendedNewsViewMode"
     private val loadingNews = Constants.loadingDummy
@@ -28,12 +31,37 @@ class RecommendedNewsViewModel @Inject constructor(
     val recommendNews = MutableStateFlow<List<ListItemState<News>>>(emptyList())
     val scrollIndex = MutableSharedFlow<Int>()
     var loading = false
+    var language = MutableStateFlow<String>("en")
 
     init {
+        handleLanguageChange()
+        getAppLanguage()
         Log.d(TAG, "init: init")
         handlePageChange()
         handleTopicChange()
         handleScrollIndex()
+    }
+
+    private fun handleLanguageChange() {
+        viewModelScope.launch {
+            language.collectLatest {
+                loading = false
+                recommendNews.value = emptyList()
+                page.emit(1)
+            }
+        }
+    }
+
+    private fun getAppLanguage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            locale.appLanguageDao().getLanguage().collectLatest {
+                var lan: String = "en"
+                if (it.isNotEmpty()) {
+                   lan = it[0].language
+                }
+                language.emit(lan)
+            }
+        }
     }
 
     private fun handleScrollIndex() {
@@ -58,7 +86,7 @@ class RecommendedNewsViewModel @Inject constructor(
                 loading = true
                 emitLoading()
                 try {
-                    val news = apiRepository.getNews(it, query = query.value)
+                    val news = apiRepository.getNews(it, query = query.value, language = language.value)
                     emitLoaded(news)
                     loading = false
                 } catch (e: Exception) {
