@@ -87,10 +87,10 @@ class RecommendedNewsViewModel @Inject constructor(
                 emitLoading()
                 try {
                     val news = apiRepository.getNews(it, query = query.value, language = language.value)
+                    Log.d(TAG, "handlePageChange: request")
                     emitLoaded(news)
                     loading = false
                 } catch (e: Exception) {
-                    Log.d(TAG, "handlePageChange: exception")
                     loading = false
                 }
             }
