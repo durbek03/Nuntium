@@ -59,7 +59,7 @@ fun NewsDetailedScreen(
                 .align(Alignment.TopCenter),
             painter = rememberImagePainter(news.image),
             contentDescription = "image",
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.Crop
         )
         Box(
             modifier = Modifier

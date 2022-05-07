@@ -189,7 +189,7 @@ fun SearchItem(item: ListItemState<News>, navigator: DestinationsNavigator) {
                         },
                     painter = rememberImagePainter(item.data?.image ?: ""),
                     contentDescription = "image",
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
                 Box(
                     modifier = Modifier.fillMaxSize(),

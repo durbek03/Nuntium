@@ -114,7 +114,7 @@ fun TopicNewsItem(modifier: Modifier = Modifier, state: ListItemState<News>) {
                 .clip(RoundedCornerShape(15.dp)),
             painter = rememberImagePainter(state.data?.image),
             contentDescription = "News Image",
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.Crop
         )
         Box(
             modifier = Modifier.fillMaxSize(),

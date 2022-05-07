@@ -82,7 +82,7 @@ class Recommendation(val navigator: DestinationsNavigator) {
                     .clip(RoundedCornerShape(15.dp)),
                 painter = rememberImagePainter(news.image),
                 contentDescription = news.title,
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
             Column(
                 modifier = Modifier
